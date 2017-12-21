@@ -1,7 +1,8 @@
+{-# LANGUAGE MultiParamTypeClasses, FunctionalDependencies, FlexibleInstances #-}
 module WriterT where
 
-import Control.Monad.Trans
 import Control.Monad
+import Control.Monad.Trans
 import Control.Monad.Writer
 import Data.Monoid
 
@@ -27,5 +28,5 @@ instance Monoid w => MonadTrans (MyWriterT w) where
                 return (a,mempty)
 
 
---tell :: w -> MyWriterT ((),w)
-tell w = MyWriterT $ return ((),w)
+instance (Monoid w, Monad m) => MonadWriter w (MyWriterT w m) where
+        tell w = MyWriterT $ return ((),w)
