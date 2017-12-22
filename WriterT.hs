@@ -3,10 +3,12 @@ module WriterT where
 
 import Control.Monad
 import Control.Monad.Trans
-import Control.Monad.Writer
 import Data.Monoid
 
 newtype MyWriterT w m a = MyWriterT {  runMyWriterT :: m (a,w)  }
+
+class Monad m => (MonadWriter w m) where
+        tell :: (Monoid w, Monad m) => w -> MyWriterT w m ()
 
 instance (Monoid w, Monad m) => Functor (MyWriterT w m) where
         fmap = liftM
