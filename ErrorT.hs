@@ -1,12 +1,19 @@
+{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
 module ErrorT where
 
 import Control.Monad
-import Control.Monad.Trans
 import Data.Either
 
-newtype MyErrorT m a = MyErrorT { runMyErrorT :: m (Either String a) }
+newtype MyErrorT l m r = MyErrorT { runMyErrorT :: m (Either l r) }
 
-instance Monad m => Monad (MyErrorT m) where
+class MonadTrans t where
+        lift :: Monad m => m a -> t m a
+
+class Monad m => MonadException e m where
+        throw :: e -> m a
+        catch :: m a -> (e -> m a) -> m a
+
+instance Monad m => Monad (MyErrorT l m) where
         return = pure
         x >>= y = MyErrorT $ do
                 res <- runMyErrorT x
@@ -14,24 +21,22 @@ instance Monad m => Monad (MyErrorT m) where
                   Right val -> runMyErrorT $ y val 
                   Left err  -> return $ Left err
 
-instance Monad m => Functor (MyErrorT m) where
+instance Monad m => Functor (MyErrorT l m) where
         fmap = liftM 
 
-instance Monad m => Applicative (MyErrorT m) where
+instance Monad m => Applicative (MyErrorT l m) where
         pure = MyErrorT . return . Right
         (<*>) = ap
 
-instance MonadTrans MyErrorT where
+instance MonadTrans (MyErrorT l) where
         lift m = MyErrorT $ do
                 m' <- m
                 return $ Right m'
 
-throw :: Monad m => String -> MyErrorT m a
-throw = MyErrorT . return . Left
-
-catch :: Monad m => MyErrorT m a -> (String -> MyErrorT m a) -> MyErrorT m a 
-catch m c = MyErrorT $ do
-                m' <- runMyErrorT m
-                case m' of
-                  Left err -> runMyErrorT $ c err
-                  Right _  -> runMyErrorT m
+instance Monad m => MonadException l (MyErrorT l m) where 
+        throw = MyErrorT . return . Left
+        catch m1 m2 = MyErrorT $ do
+                m1' <- runMyErrorT m1
+                case m1' of
+                  Left err -> runMyErrorT $ m2 err
+                  Right _  -> return m1'
