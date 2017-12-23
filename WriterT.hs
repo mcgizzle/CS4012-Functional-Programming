@@ -10,7 +10,7 @@ class MonadTrans t where
         lift :: Monad m => m a -> t m a
 
 class (Monoid w, Monad m) => (MonadWriter w m) where
-        tell :: (Monoid w, Monad m) => w -> MyWriterT w m ()
+        tell :: (Monoid w, Monad m) => w -> m ()
 
 instance (Monoid w, Monad m) => Functor (MyWriterT w m) where
         fmap = liftM
@@ -30,7 +30,6 @@ instance (Monoid w) => MonadTrans (MyWriterT w) where
         lift m = MyWriterT $ do
                 m' <- m
                 return (m',mempty)
-
 
 instance (Monoid w, Monad m) => MonadWriter w (MyWriterT w m) where
         tell w = MyWriterT $ return ((),w)
