@@ -1,5 +1,5 @@
 {-# LANGUAGE MultiParamTypeClasses, FunctionalDependencies, FlexibleInstances #-}
-module MyReaderT where
+module ReaderT where
 
 import Control.Monad
 
