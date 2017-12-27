@@ -27,9 +27,7 @@ instance Monad m => Monad (MaybeT m) where
                   Nothing -> return Nothing
 
 instance MonadTrans MaybeT where
-        lift m = MaybeT $ do
-                m' <- m
-                return $ Just m'
+        lift = MaybeT . liftM Just
 
 instance Monad m => MonadError (MaybeT m) where
         eFail = MaybeT $ return Nothing

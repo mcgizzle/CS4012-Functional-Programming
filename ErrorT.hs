@@ -29,9 +29,7 @@ instance Monad m => Applicative (MyErrorT l m) where
         (<*>) = ap
 
 instance MonadTrans (MyErrorT l) where
-        lift m = MyErrorT $ do
-                m' <- m
-                return $ Right m'
+        lift = MyErrorT . liftM Right
 
 instance Monad m => MonadException l (MyErrorT l m) where 
         throw = MyErrorT . return . Left

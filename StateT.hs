@@ -1,5 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses, FlexibleInstances #-}
 module StateT where
 
 import Control.Monad
@@ -26,11 +25,8 @@ instance Monad m => Monad (MyStateT s m) where
                 (x',s') <- runMyStateT x s 
                 runMyStateT (y x') s'
 
-
 instance MonadTrans (MyStateT s) where
-        lift x = MyStateT $ \ s -> do
-                x' <- x
-                return (x',s)
+        lift m = MyStateT  $ \ s -> liftM (\ x -> (x,s)) m
 
 instance Monad m => MonadState s (MyStateT s m) where
         get = MyStateT $ \ s -> return (s,s)
