@@ -28,9 +28,7 @@ instance (Monad m) => Monad (MyEitherT l m) where
                   Right res -> runMyEitherT $ b res
 
 instance MonadTrans (MyEitherT l) where
-        lift m = MyEitherT $ do
-                m' <- m
-                return $ Right m'
+        lift = MyEitherT . liftM Right
 
 instance (Show l, Monad m) => MonadError l (MyEitherT l m) where
         eFail l = MyEitherT $ return $ Left l
