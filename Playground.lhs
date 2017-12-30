@@ -39,6 +39,15 @@ AVL Tree
 >       LNode :: AVL a (S b) -> AVL a b -> AVL a (S (S b))
 >       RNode :: AVL a b -> AVL a (S b) -> AVL a (S (S b))
 
+Heterogenous List
+
+>data HList0 where
+>       HNil0  :: HList0
+>       HCons0 :: a -> HList0 -> HList0 
+
+        HCons0 :: Show a -> HList0i -> HList0
+        HCons0 :: (a, a -> String) -> HList0
+
 Existential Quantification 
 
 Useless
