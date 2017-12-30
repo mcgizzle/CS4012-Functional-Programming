@@ -31,6 +31,14 @@ f 1 = Cons 1 Nil
 'f 0' binds 'List a Z' to the type of 'f'
 The compiler will shout at us because expected 'List a Z' will not match the impossible 'List a (S Z)'
 
+AVL Tree
+
+>data AVL a n where
+>       Empty :: AVL a Z
+>       Node  :: AVL a b -> AVL a b -> AVL a (S b)
+>       LNode :: AVL a (S b) -> AVL a b -> AVL a (S (S b))
+>       RNode :: AVL a b -> AVL a (S b) -> AVL a (S (S b))
+
 Existential Quantification 
 
 Useless
