@@ -1,4 +1,4 @@
->{-# LANGUAGE GADTs, ExistentialQuantification #-}
+>{-# LANGUAGE GADTs, ExistentialQuantification, DataKinds, KindSignatures, TypeFamilies#-}
 >module Playground where
 
 GADTS 
@@ -76,6 +76,10 @@ Package our own functions up with the list
 >printList (HCons2 (x,s) xs) = putStrLn (s x) >> printList2 xs
 
 Phantom Types
+
+>newtype Lis a = Lis [Int]
+
+
 data Ptr a = MkPtr Addr
 Say we had the following functions 
 peek :: Ptr a -> IO a
@@ -85,4 +89,49 @@ The compiler will protect us from the following
           ptr <- allocPtr
           poke ptr (42 :: Int)
           f :: Float <- peek ptr
+
+Data Kinds
+
+Tells us how many paramters a function takes
+Int :: *
+fmap :: (* -> *) -> * -> *
+
+>data Nat where
+>     Zero :: Nat
+>     Succ :: Nat -> Nat
+
+Lets us encode the length of a vector into its type
+
+>data Vec a (l :: Nat) where
+>     VNil  :: Vec a Zero
+>     VCons :: a -> Vec a n -> Vec a (Succ n) 
+
+for example this wont work
+vecL :: Vec Int (Succ (Succ Zero))
+vecL = VCons 1 $ VCons 2 $ VCons 3 VNil 
+
+This will
+
+>vecL :: Vec Int (Succ (Succ Zero))
+>vecL = VCons 1 $ VCons 2 VNil
+
+Now in order to write useful functions we need the help of the TypeFamilies extension.
+Lets write an append function that actually works.
+
+First we declare `Add` which is a `Type Family` or in other words type-level operation
+
+>type family Add (x :: Nat) (y :: Nat) :: Nat
+>type instance Add Zero y = y
+>type instance Add (Succ x) y = Succ (Add x y)
+
+We now use this Add to increase the kind of Vec to the size of both the Vectors
+
+>append :: Vec a x -> Vec a y -> Vec a (Add x y)
+>append (VCons x xs) ys = VCons x $ append xs ys
+>append VNil ys = ys
+
+:t append vecL vecL
+append vecL vecL :: Vec Int ('Succ ('Succ ('Succ ('Succ 'Zero))))
+
+
 
