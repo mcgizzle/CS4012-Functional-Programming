@@ -11,6 +11,7 @@ class MonadTrans t where
 class (MonadState s m) where
         get :: m s
         put :: s -> m ()
+        modify :: (s -> s) -> m ()
 
 instance Monad m => Functor (MyStateT s m) where
         fmap = liftM
@@ -31,4 +32,4 @@ instance MonadTrans (MyStateT s) where
 instance Monad m => MonadState s (MyStateT s m) where
         get = MyStateT $ \ s -> return (s,s)
         put s = MyStateT $ \ _ -> return ((),s)
-          
+        modify f = get >>= put . f 
