@@ -29,7 +29,7 @@ f 0 = Nil
 f 1 = Cons 1 Nil
 
 'f 0' binds 'List a Z' to the type of 'f'
-The compiler will shout at us because expected 'List a Z' will not match the impossible 'List a (S Z)'
+The compiler will shout at us because expected 'List a Z' will not match the expected 'List a (S Z)'
 
 AVL Tree
 
