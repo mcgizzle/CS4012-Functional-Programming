@@ -1,6 +1,7 @@
 module Chan where
 
 import Control.Concurrent hiding (Chan)
+import Control.Concurrent.STM hiding (TChan)
 
 type Stream a = MVar (Item a)
 data Item a = Item a (Stream a)
@@ -34,4 +35,51 @@ dupChan (Chan _ writeVar) = do
         hole <- readMVar writeVar
         newReadVar <- newMVar hole
         return $ Chan newReadVar writeVar
+
+type TVarList a = TVar (TList a)
+data TList a = Nil
+             | TCons a (TVarList a)
+
+data TChan a = TChan (TVar (TVarList a)) (TVar (TVarList a))
+
+newTChan :: STM (TChan a)
+newTChan = do
+        hole <- newTVar Nil
+        read <- newTVar hole
+        write <- newTVar hole
+        return $ TChan read write
+
+writeTChan :: TChan a -> a -> STM ()
+writeTChan (TChan _ write) val = do
+        newHole <- newTVar Nil
+        oldHole <- readTVar write
+        writeTVar oldHole $ TCons val newHole
+        writeTVar write newHole
+
+readTChan :: TChan a -> STM a
+readTChan (TChan read _) = do
+        stream <- readTVar read
+        head <- readTVar stream
+        case head of
+          Nil -> retry
+          TCons val next -> do
+                  writeTVar read next
+                  return val
+
+unGetTChan :: TChan a -> a -> STM ()
+unGetTChan (TChan read _) val = do
+        head <- readTVar read
+        newHead <- newTVar (TCons val head)
+        writeTVar read newHead
+
+isEmptyTChan :: TChan a -> STM Bool
+isEmptyTChan (TChan read _) = do
+        list <- readTVar read
+        head <- readTVar list
+        case head of
+          Nil -> return True
+          _    -> return False
+
+
+
 
