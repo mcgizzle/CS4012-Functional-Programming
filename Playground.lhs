@@ -77,7 +77,32 @@ Package our own functions up with the list
 
 Phantom Types
 
+We can teach the compiler the difference in Even and Odd length lists
+
 >newtype Lis a = Lis [Int]
+>data Odd = Odd
+>data Even = Even
+>
+>consE :: Int -> Lis Even -> Lis Odd 
+>consE x (Lis y) = Lis (x:y) 
+>consO :: Int -> Lis Odd -> Lis Even
+>consO x (Lis y) = Lis (x:y)
+
+the following will not compile
+nil = Lis []
+consO 1 $ nil
+This will work
+:t consO 1 $ consE 2 $ Lis []
+consO 1 $ consE 2 $ Lis [] :: Lis Even
+
+This will not
+:t consE 1 $ consE 2 $ Lis []
+
+    • Couldn't match type ‘Odd’ with ‘Even’
+      Expected type: Lis Even
+        Actual type: Lis Odd
+    • In the second argument of ‘($)’, namely ‘consE 2 $ Lis []’
+      In the expression: consE 1 $ consE 2 $ Lis []
 
 
 data Ptr a = MkPtr Addr
