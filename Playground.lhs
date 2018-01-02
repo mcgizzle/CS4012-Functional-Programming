@@ -95,8 +95,14 @@ This will work
 :t consO 1 $ consE 2 $ Lis []
 consO 1 $ consE 2 $ Lis [] :: Lis Even
 
-This will not
-:t consE 1 $ consE 2 $ Lis []
+:t consE 2 $ consO 1 $ consE $ Lis []
+
+<interactive>:1:21: error:
+    • Couldn't match expected type ‘Lis Odd’
+                  with actual type ‘Lis Even -> Lis Odd’
+    • In the second argument of ‘($)’, namely ‘consE $ Lis []’
+      In the second argument of ‘($)’, namely ‘consO 1 $ consE $ Lis []’
+      In the expression: consE 2 $ consO 1 $ consE $ Lis []
 
     • Couldn't match type ‘Odd’ with ‘Even’
       Expected type: Lis Even
@@ -137,8 +143,8 @@ vecL = VCons 1 $ VCons 2 $ VCons 3 VNil
 
 This will
 
->vecL :: Vec Int (Succ (Succ Zero))
->vecL = VCons 1 $ VCons 2 VNil
+>vecL :: Vec Int (Succ (Succ (Succ Zero)))
+>vecL = VCons 1 $ VCons 2 $ VCons 3 VNil
 
 Now in order to write useful functions we need the help of the TypeFamilies extension.
 Lets write an append function that actually works.
