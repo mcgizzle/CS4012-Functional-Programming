@@ -27,7 +27,7 @@ instance (Monoid w, Monad m) => Monad (MyWriterT w m) where
                 return (a',w `mappend` w')
 
 instance (Monoid w) => MonadTrans (MyWriterT w) where
-        lift = MyWriterT . liftM (\ x -> (x,mempty))
+        lift = MyWriterT . liftM (flip (,) mempty)
 
 instance (Monoid w, Monad m) => MonadWriter w (MyWriterT w m) where
         tell w = MyWriterT $ return ((),w)

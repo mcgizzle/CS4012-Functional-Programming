@@ -27,9 +27,9 @@ instance Monad m => Monad (MyStateT s m) where
                 runMyStateT (y x') s'
 
 instance MonadTrans (MyStateT s) where
-        lift m = MyStateT  $ \ s -> liftM (\ x -> (x,s)) m
+        lift m = MyStateT  $ \ s -> liftM (flip (,) s) m
 
 instance Monad m => MonadState s (MyStateT s m) where
         get = MyStateT $ \ s -> return (s,s)
         put s = MyStateT $ \ _ -> return ((),s)
-        modify f = get >>= put . f 
+        modify f = get >>= put . f
