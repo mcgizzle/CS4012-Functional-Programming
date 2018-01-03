@@ -1,5 +1,6 @@
 >{-# LANGUAGE GADTs, ExistentialQuantification, DataKinds, KindSignatures, TypeFamilies#-}
 >module Playground where
+>import Control.Concurrent.STM
 
 GADTS 
 
@@ -83,6 +84,8 @@ We can teach the compiler the difference in Even and Odd length lists
 >data Odd = Odd
 >data Even = Even
 >
+>nil :: Lis Odd
+>nil = Lis []
 >consE :: Int -> Lis Even -> Lis Odd 
 >consE x (Lis y) = Lis (x:y) 
 >consO :: Int -> Lis Odd -> Lis Even
@@ -121,15 +124,16 @@ The compiler will protect us from the following
           poke ptr (42 :: Int)
           f :: Float <- peek ptr
 
-Data Kinds
+Type Kinds
 
 Tells us how many paramters a function takes
 Int :: *
 fmap :: (* -> *) -> * -> *
 
->data Nat where
->     Zero :: Nat
->     Succ :: Nat -> Nat
+Data Kinds
+:
+
+>data Nat = Zero | Succ Nat
 
 Lets us encode the length of a vector into its type
 
@@ -163,6 +167,19 @@ We now use this Add to increase the kind of Vec to the size of both the Vectors
 
 :t append vecL vecL
 append vecL vecL :: Vec Int ('Succ ('Succ ('Succ ('Succ 'Zero))))
+
+>type Account = TVar Int 
+>transfer :: Account -> Account -> Int -> IO ()
+>transfer acc1 acc2 amount = atomically $ do
+>   bal1 <- readTVar acc1
+>   always (return $ bal1 > amount) 
+>   bal2 <- readTVar acc2
+>   writeTVar acc1 (bal1 - amount)
+>   writeTVar acc2 (bal2 + amount)
+
+
+>testFunc = putStr "hello" >> getLine >>= putStr . reverse
+
 
 
 
